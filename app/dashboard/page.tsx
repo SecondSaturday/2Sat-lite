@@ -30,7 +30,7 @@ export default function Dashboard() {
     selectedGroupId ?? (mockGroups && mockGroups.length > 0 ? mockGroups[0]._id : null);
 
   // Fetch newsletter for selected group
-  const newsletter = undefined;
+  const newsletter: { htmlContent: string } | undefined = undefined;
 
   // Handle group click - mobile navigates, desktop updates state
   const handleGroupClick = (groupId: Id<"groups">) => {
