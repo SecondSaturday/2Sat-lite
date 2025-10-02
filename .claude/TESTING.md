@@ -596,38 +596,207 @@ npx playwright test --coverage
 
 ---
 
+## Visual Testing Protocol (MANDATORY for Frontend)
+
+### Visual Regression Testing
+
+**Every frontend component MUST be visually tested before completion.**
+
+#### Required Screenshots
+
+For each component, capture screenshots at **3 breakpoints**:
+
+1. **Desktop**: 1440px × 900px
+2. **Tablet**: 768px × 1024px
+3. **Mobile**: 375px × 667px
+
+#### Screenshot Test Template
+
+```typescript
+// tests/visual/component-name.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('ComponentName Visual Tests', () => {
+  const sizes = [
+    { width: 1440, height: 900, name: 'desktop' },
+    { width: 768, height: 1024, name: 'tablet' },
+    { width: 375, height: 667, name: 'mobile' },
+  ];
+
+  for (const size of sizes) {
+    test(`renders correctly on ${size.name}`, async ({ page }) => {
+      // Set viewport
+      await page.setViewportSize({ width: size.width, height: size.height });
+
+      // Navigate to component
+      await page.goto('http://localhost:3000/your-page');
+
+      // Wait for component to render
+      await page.waitForSelector('[data-testid="component-name"]');
+
+      // Take screenshot for manual inspection
+      await page.screenshot({
+        path: `screenshots/component-name-${size.name}.png`,
+        fullPage: true,
+      });
+
+      // Visual regression test
+      await expect(page).toHaveScreenshot(`component-name-${size.name}.png`);
+    });
+  }
+
+  test('design system compliance', async ({ page }) => {
+    await page.goto('http://localhost:3000/your-page');
+
+    // Verify primary button color
+    const primaryBtn = page.locator('.btn-primary').first();
+    const bgColor = await primaryBtn.evaluate(el =>
+      window.getComputedStyle(el).backgroundColor
+    );
+    expect(bgColor).toBe('rgb(164, 66, 254)'); // #a442fe
+
+    // Verify accent color
+    const accentElement = page.locator('.text-accent').first();
+    const color = await accentElement.evaluate(el =>
+      window.getComputedStyle(el).color
+    );
+    expect(color).toBe('rgb(128, 228, 228)'); // #80e4e4
+
+    // Verify spacing (example: padding)
+    const card = page.locator('.card').first();
+    const padding = await card.evaluate(el =>
+      window.getComputedStyle(el).padding
+    );
+    // Verify it's using system scale (e.g., 24px for p-6)
+    expect(padding).toMatch(/24px/);
+  });
+});
+```
+
+#### Manual Screenshot Inspection
+
+After capturing screenshots, agents **MUST** inspect them to verify:
+
+**Colors**:
+- [ ] Primary buttons: `#a442fe` (purple)
+- [ ] Accent elements: `#80e4e4` (teal)
+- [ ] Background: `#f8f2ed` (cream)
+- [ ] Text: `#291334` (dark purple)
+- [ ] No hardcoded hex colors visible
+
+**Spacing**:
+- [ ] Padding uses system scale (4px, 8px, 12px, 16px, 24px, 32px, etc.)
+- [ ] Gaps/margins consistent
+- [ ] No arbitrary spacing values
+
+**Typography**:
+- [ ] Font sizes match system (11px, 12px, 14px, 18px, 20px, 24px, 30px, 36px, 72px)
+- [ ] Font family: Instrument Sans (primary)
+- [ ] Font weights: 400, 500, 600, 700
+
+**Components**:
+- [ ] DaisyUI components used (btn, card, input, alert)
+- [ ] Border radius matches design system (4px, 8px, 16px, 1000px)
+- [ ] No custom button/card/input implementations
+
+**Responsive**:
+- [ ] Layout works on mobile (375px)
+- [ ] Layout works on tablet (768px)
+- [ ] Layout works on desktop (1440px)
+- [ ] No overflow or cut-off elements
+
+---
+
 ## Agent Self-Testing Workflow
 
 ### Before Marking Task Complete
 
+**Functional Testing**:
 1. **Write test** (if new feature)
 2. **Run test** via Playwright MCP
 3. **Verify pass** ✅
-4. **If fail**: Debug → Fix → Re-test (max 3 attempts)
-5. **If still failing**: Escalate to user
-6. **Update changelog** with test results
 
-### Example Agent Session
+**Visual Testing** (Frontend Components):
+4. **Start dev server**: `npm run dev`
+5. **Take screenshots** at 3 breakpoints (desktop/tablet/mobile)
+6. **Inspect screenshots** manually (colors, spacing, typography, components)
+7. **Run visual regression test**: `npx playwright test tests/visual/`
+8. **Verify design system compliance**: Use browser inspector to check computed colors
+
+**Completion**:
+9. **If pass**: Update changelog with test results → Mark complete
+10. **If fail**: Debug → Fix → Re-test (max 3 attempts)
+11. **If still failing**: Escalate to user
+
+### Example Agent Session (Frontend)
 
 ```markdown
-## Agent Task: Build Contribution Form
+## Frontend Agent Task: Build Contribution Form
 
 ### Steps:
-1. ✅ Built ContributionForm.tsx component
-2. ✅ Added 5 prompt fields
-3. ✅ Implemented auto-save (30s interval)
-4. ✅ Added image upload (max 10 files)
+1. ✅ Read DESIGN_SYSTEM.md for reference
+2. ✅ Built ContributionForm.tsx component using DaisyUI
+3. ✅ Used design tokens:
+   - Colors: bg-base-100, text-base-content, btn-primary
+   - Spacing: p-6, gap-4, mb-8
+   - Typography: text-base, text-lg, font-medium
+4. ✅ Added 5 prompt fields (input, textarea)
+5. ✅ Implemented auto-save (30s interval)
+6. ✅ Added image upload (max 10 files)
 
-### Testing:
+### Functional Testing:
 1. ✅ Run: npx playwright test tests/contributions/create-contribution.spec.ts
 2. ✅ Result: All tests passed (5/5)
 
+### Visual Testing:
+1. ✅ Started dev server: npm run dev
+2. ✅ Screenshots captured:
+   - screenshots/contribution-form-desktop.png (1440px)
+   - screenshots/contribution-form-tablet.png (768px)
+   - screenshots/contribution-form-mobile.png (375px)
+3. ✅ Manual inspection completed:
+   - Colors: Primary button = #a442fe ✓, Background = #f8f2ed ✓
+   - Spacing: Padding = 24px (p-6) ✓, Gap = 16px (gap-4) ✓
+   - Typography: Text = 14px (text-base) ✓
+   - Components: DaisyUI btn, input, textarea ✓
+   - Responsive: All breakpoints work ✓
+4. ✅ Visual regression test: PASS
+5. ✅ Design system compliance: 100%
+
 ### Validated:
-- ✅ Form renders correctly
-- ✅ Auto-save works
-- ✅ Image upload works
-- ✅ Max 10 images enforced
-- ✅ Draft saved to database
+- ✅ Form renders correctly (functional test)
+- ✅ Auto-save works (functional test)
+- ✅ Image upload works (functional test)
+- ✅ Max 10 images enforced (functional test)
+- ✅ Draft saved to database (functional test)
+- ✅ Design system compliant (visual test)
+- ✅ Responsive on all devices (visual test)
+
+### Changelog:
+- Added to CHANGELOG.md with test results
+```
+
+### Example Agent Session (Backend)
+
+```markdown
+## Backend Agent Task: Build Newsletter Cron Job
+
+### Steps:
+1. ✅ Built sendNewsletter.ts Convex action
+2. ✅ Added cron schedule (2nd Saturday, 9:00 AM)
+3. ✅ Query contributions for current month
+4. ✅ Generate HTML newsletter
+5. ✅ Send via Resend API
+
+### Testing:
+1. ✅ Run: npx playwright test tests/newsletters/generate-newsletter.spec.ts
+2. ✅ Result: All tests passed (3/3)
+
+### Validated:
+- ✅ Cron job triggers correctly
+- ✅ Newsletter HTML generated
+- ✅ Email sent via Resend
+- ✅ Database record created
 
 ### Changelog:
 - Added to CHANGELOG.md with test results

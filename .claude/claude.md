@@ -42,6 +42,30 @@ The full app will support:
 
 ## 🤖 Agentic Framework Rules
 
+### Specialized Agents
+
+The framework includes specialized sub-agents for specific tasks:
+
+#### 1. **Frontend Agent** (`.claude/FRONTEND_AGENT.md`)
+**Invoked for**: UI/UX development, component building, styling, layouts
+**Expertise**: React, Next.js, TypeScript, DaisyUI, Tailwind CSS
+**Strict Rules**:
+- **MUST** use design system tokens (colors, spacing, typography)
+- **MUST** use DaisyUI components (no custom button/card/input implementations)
+- **MUST** visually test with Playwright screenshots
+- **MUST** validate responsive design (mobile, tablet, desktop)
+- **NEVER** use hardcoded hex colors or arbitrary spacing values
+
+**When to invoke**: Any task involving React components, pages, forms, or visual elements
+
+#### 2. **Backend Agent** (Future)
+**Invoked for**: Convex functions, database schema, API logic
+**Expertise**: Convex mutations/queries/actions, TypeScript, data modeling
+
+#### 3. **Testing Agent** (Future)
+**Invoked for**: Test writing, coverage analysis, debugging test failures
+**Expertise**: Playwright, unit tests, integration tests, visual regression
+
 ### Agent Autonomy Boundaries
 
 #### ✅ Agents Can Do Independently:
@@ -49,19 +73,21 @@ The full app will support:
 - Fix bugs and refactor code
 - Update Convex schema (database models)
 - Implement Clerk authentication flows
-- Create/modify frontend components
+- Create/modify frontend components **using design system**
 - Write backend logic (mutations/queries/actions)
 - Organize files and folders
 - Choose variable/function names
 - Add error handling
 - Run Playwright tests and self-validate
+- Take screenshots for visual validation
 - Update changelogs
 
 #### ❌ Agents Must Ask for Approval:
 - External API integrations requiring new auth tokens/keys
 - Third-party service setup (beyond Clerk/Convex/Resend already configured)
 - Major architectural changes (switching frameworks, databases)
-- Design/styling decisions (colors, layouts, themes)
+- **Adding colors/tokens NOT in design system** (`.claude/DESIGN_SYSTEM.md`)
+- Creating custom UI components when DaisyUI equivalents exist
 - Spending money (paid services, upgrades)
 
 ### Decision-Making Protocol
@@ -69,16 +95,45 @@ The full app will support:
 ```
 Task Assigned
     ↓
-Is it API/auth/design related?
-    Yes → Pause → Present options → Wait for approval
-    No → Build autonomously
-        ↓
-    Build feature
-        ↓
-    Run Playwright tests
-        ↓
-    Pass? → Update changelog → Mark complete
-    Fail? → Debug → Retry (max 3 attempts) → Escalate if stuck
+Route to Specialized Agent?
+    Frontend task? → Invoke Frontend Agent
+    Backend task? → Build autonomously (or invoke Backend Agent if exists)
+    Testing task? → Invoke Testing Agent (if exists)
+    ↓
+Agent builds feature
+    ↓
+Frontend Agent: MUST take screenshots + visual test
+Backend Agent: MUST write unit tests
+    ↓
+Run Playwright tests
+    ↓
+Pass? → Update changelog → Mark complete
+Fail? → Debug → Retry (max 3 attempts) → Escalate if stuck
+```
+
+### Agent Invocation Examples
+
+**Example 1: Frontend Task**
+```
+User: "Build the contribution form"
+Main Agent: Invokes Frontend Agent
+Frontend Agent:
+  1. Reads DESIGN_SYSTEM.md
+  2. Builds form using DaisyUI components
+  3. Takes screenshots (desktop/mobile/tablet)
+  4. Runs visual Playwright tests
+  5. Returns: "✅ Form complete, design system compliant"
+```
+
+**Example 2: Full Stack Task**
+```
+User: "Add newsletter archive feature"
+Main Agent:
+  1. Invokes Backend Agent (build Convex queries)
+  2. Invokes Frontend Agent (build archive page)
+  3. Coordinates integration
+  4. Runs E2E tests
+  5. Returns: "✅ Feature complete, all tests passing"
 ```
 
 ---
@@ -284,39 +339,77 @@ const addContribution = useMutation(api.contributions.create);
 await addContribution({ ...data }, { optimistic: true });
 ```
 
-### Styling Rules
+### Styling Rules (STRICT ENFORCEMENT)
+
+**MANDATORY**: All styling **MUST** follow `.claude/DESIGN_SYSTEM.md`
 
 **DaisyUI Cupcake Theme**:
-- Use DaisyUI components whenever possible
+- **ALWAYS** use DaisyUI components (btn, card, input, alert, modal, etc.)
+- **NEVER** create custom button/card/input components when DaisyUI equivalents exist
 - Theme: `cupcake` (cheerful, friendly colors)
-- Override primary/accent via CSS variables:
+- All color values defined in `daisyui.config.ts` and `app/globals.css`
 
-```css
-/* app/globals.css */
-:root {
-  --primary: #A442FE;
-  --accent: #80E4E4;
-}
-```
+**Design System Compliance Rules**:
 
-**Tailwind Utilities**:
-- Mobile-first responsive design
-- Use semantic spacing (p-4, gap-6, etc.)
-- Consistent border-radius (rounded-lg)
+1. **Colors**: **ONLY** use design tokens
+   ```tsx
+   // ✅ CORRECT - Design tokens
+   <div className="bg-primary text-primary-content">...</div>
+   <span className="text-accent">...</span>
 
-**Component Patterns**:
-```tsx
-// Good: DaisyUI + Tailwind
-<button className="btn btn-primary">Submit</button>
+   // ❌ WRONG - Hardcoded hex colors
+   <div style={{ backgroundColor: '#a442fe' }}>...</div>
+   <div className="bg-[#80e4e4]">...</div>
+   ```
 
-// Good: Custom with DaisyUI base
-<div className="card bg-base-100 shadow-xl">
-  <div className="card-body">...</div>
-</div>
+2. **Spacing**: **ONLY** use system scale (0, 1, 2, 3, 4, 5, 6, 8, 12, 16, 20, 32)
+   ```tsx
+   // ✅ CORRECT - System spacing
+   <div className="p-4 gap-6 mb-8">...</div>
 
-// Avoid: Inline styles (use Tailwind instead)
-<div style={{ padding: '16px' }}>...</div>
-```
+   // ❌ WRONG - Arbitrary values
+   <div className="p-[15px] gap-[13px] mb-[23px]">...</div>
+   ```
+
+3. **Typography**: **ONLY** use system scale (text-xs to text-7xl)
+   ```tsx
+   // ✅ CORRECT - System typography
+   <h1 className="text-4xl font-bold">Title</h1>
+
+   // ❌ WRONG - Arbitrary font size
+   <h1 className="text-[28px]">Title</h1>
+   ```
+
+4. **Components**: **ALWAYS** use DaisyUI
+   ```tsx
+   // ✅ CORRECT - DaisyUI components
+   <button className="btn btn-primary">Submit</button>
+   <div className="card bg-base-100 shadow-xl">
+     <div className="card-body">...</div>
+   </div>
+
+   // ❌ WRONG - Custom implementations
+   <button className="px-4 py-2 bg-blue-500 rounded">Submit</button>
+   <div className="bg-white p-4 rounded-lg shadow">...</div>
+   ```
+
+5. **No Inline Styles**: **NEVER** use `style` attribute
+   ```tsx
+   // ✅ CORRECT - Tailwind utilities
+   <div className="p-4 mb-6">...</div>
+
+   // ❌ WRONG - Inline styles
+   <div style={{ padding: '16px', marginBottom: '24px' }}>...</div>
+   ```
+
+**Frontend Agent Enforcement**:
+- Frontend Agent **automatically enforces** these rules
+- Any violation **blocks task completion**
+- Visual tests **verify** design system compliance
+
+**Reference Documentation**:
+- Complete design system: `.claude/DESIGN_SYSTEM.md`
+- Frontend agent protocol: `.claude/FRONTEND_AGENT.md`
 
 ### Error Handling
 
@@ -358,7 +451,30 @@ try {
 
 ### Self-Testing Protocol
 
-**Every feature MUST be validated with Playwright MCP before marking complete.**
+**Every feature MUST be validated BEFORE marking complete:**
+
+#### Required Testing Steps
+
+1. **Functional Tests** (Playwright)
+   - User interactions work correctly
+   - Data persistence verified
+   - Error handling tested
+
+2. **Visual Tests** (Playwright Screenshots) **MANDATORY for frontend**
+   - Take screenshots at 3 breakpoints:
+     - Desktop: 1440px
+     - Tablet: 768px
+     - Mobile: 375px
+   - Verify design system compliance:
+     - Colors match tokens (use browser inspector)
+     - Spacing matches system scale
+     - Typography matches system scale
+   - Compare against visual regression baseline
+
+3. **Accessibility Tests**
+   - Keyboard navigation works
+   - Screen reader compatible
+   - ARIA labels present
 
 #### Test Scenarios (see `.claude/TESTING.md` for full specs):
 
@@ -374,32 +490,64 @@ try {
    - Save draft
    - Submit contribution
    - Edit existing contribution
+   - **Visual regression** (screenshots at 3 breakpoints)
 
 3. **Newsletter Generation**
    - Trigger cron job manually
    - Verify HTML output
    - Check email delivery (Resend)
    - Verify database record
+   - **Visual regression** (email template)
 
 4. **Archive View**
    - List newsletters
    - View individual newsletter
    - Filter by month
+   - **Visual regression** (archive page)
 
 #### Validation Workflow
 
 ```
 Build Feature
     ↓
-Write Playwright Test
+Frontend? → Take screenshots (desktop/tablet/mobile)
+          → Verify design system compliance
+          → Run visual regression test
+    ↓
+Write Playwright Functional Test
     ↓
 Run Test via MCP
     ↓
-Pass? → Mark complete
+Pass? → Verify screenshots manually
+      → Update changelog with test results
+      → Mark complete
 Fail? → Debug → Re-test (max 3 attempts)
     ↓
 Still failing? → Escalate to user
 ```
+
+#### Visual Testing Requirements
+
+**For ALL frontend components**, agents MUST:
+1. Run `npm run dev` to start local server
+2. Navigate to component in browser
+3. Take screenshot using Playwright:
+   ```typescript
+   await page.setViewportSize({ width: 1440, height: 900 });
+   await page.screenshot({ path: 'screenshots/component-desktop.png' });
+   ```
+4. Inspect screenshot to verify:
+   - ✅ Colors: primary=#a442fe, accent=#80e4e4, base-100=#f8f2ed
+   - ✅ Spacing: matches system scale (4px, 8px, 12px, 16px, etc.)
+   - ✅ Typography: uses system sizes
+   - ✅ Components: DaisyUI classes visible
+5. Repeat for tablet (768px) and mobile (375px)
+6. Write visual regression test:
+   ```typescript
+   await expect(page).toHaveScreenshot('component.png');
+   ```
+
+**Screenshots stored in**: `screenshots/` directory
 
 #### CI/CD Testing
 
@@ -407,6 +555,7 @@ GitHub Actions runs Playwright tests on:
 - Every PR
 - Before merge to main
 - Scheduled daily (catch regressions)
+- Includes visual regression tests
 
 ---
 
@@ -926,12 +1075,20 @@ git diff main
 
 ## 📖 Learning Resources
 
+**Core Documentation**:
 - [Convex Docs](https://docs.convex.dev/)
 - [Next.js Docs](https://nextjs.org/docs)
 - [Clerk Docs](https://clerk.com/docs)
 - [DaisyUI Components](https://daisyui.com/components/)
 - [Playwright Docs](https://playwright.dev/)
 - [Resend Docs](https://resend.com/docs)
+
+**Framework Documentation** (Internal):
+- `.claude/DESIGN_SYSTEM.md` - Complete design system specification
+- `.claude/FRONTEND_AGENT.md` - Frontend agent protocol & rules
+- `.claude/AGENT_ORCHESTRATION.md` - Multi-agent coordination guide
+- `.claude/TESTING.md` - Testing protocols & visual regression
+- `.claude/CHANGELOG.md` - Session logs & updates
 
 ---
 
