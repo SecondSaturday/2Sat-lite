@@ -29,8 +29,8 @@ export default function Dashboard() {
   const effectiveGroupId =
     selectedGroupId ?? (mockGroups && mockGroups.length > 0 ? mockGroups[0]._id : null);
 
-  // Fetch newsletter for selected group
-  const newsletter: { htmlContent: string } | undefined = undefined;
+  // Fetch newsletter for selected group (TODO: implement with Convex query)
+  // const newsletter: { htmlContent: string } | null = null;
 
   // Handle group click - mobile navigates, desktop updates state
   const handleGroupClick = (groupId: Id<"groups">) => {
@@ -222,15 +222,9 @@ export default function Dashboard() {
         {/* Right Content Area */}
         <main className="flex-1 flex items-center justify-center overflow-y-auto bg-base-300">
           <div className="max-w-[800px] w-full px-8">
-            {newsletter ? (
-              <div className="prose max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: newsletter.htmlContent }} />
-              </div>
-            ) : (
-              <p className="text-sm text-base-content/50 text-center">
-                Click on a group to view
-              </p>
-            )}
+            <p className="text-sm text-base-content/50 text-center">
+              Select a group to view newsletter
+            </p>
           </div>
         </main>
       </div>
