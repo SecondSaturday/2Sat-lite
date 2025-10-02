@@ -11,9 +11,9 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-base-100">
-      {/* Header */}
-      <header className="bg-base-100 border-b border-base-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      {/* Header - Using Figma design tokens */}
+      <header className="bg-base-100 border-b border-base-300" style={{ minHeight: 'var(--navbar-min-height, 64px)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center">
             <svg
@@ -41,14 +41,15 @@ export default function Dashboard() {
             </svg>
           </div>
 
-          {/* Month Selector */}
+          {/* Month Selector - Using design token font sizes */}
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
               role="button"
-              className="btn btn-ghost gap-2 text-base sm:text-lg font-normal"
+              className="btn btn-ghost gap-2 font-normal"
+              style={{ fontSize: 'var(--font-size-lg, 18px)' }}
             >
-              <span>Sep 13</span>
+              <span>{formattedDate}</span>
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -75,15 +76,23 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
-          {/* Empty State Message */}
-          <p className="text-base-content/60 text-center mb-8 sm:mb-12 text-base sm:text-lg">
+          {/* Empty State Message - Using design token spacing */}
+          <p
+            className="text-base-content/60 text-center mb-8 sm:mb-12"
+            style={{ fontSize: 'var(--font-size-lg, 18px)', lineHeight: 'var(--line-height-7, 28px)' }}
+          >
             Your Second Saturday issues will appear here.
           </p>
 
-          {/* CTA Button */}
+          {/* CTA Button - Using Figma design tokens for sizing and styling */}
           <button
             onClick={() => router.push('/contribute')}
-            className="btn btn-primary btn-lg gap-2 text-white text-xl sm:text-2xl px-8 sm:px-12 py-6 sm:py-8 h-auto rounded-3xl shadow-lg hover:shadow-xl transition-all"
+            className="btn btn-primary btn-lg gap-2 text-white px-8 sm:px-12 py-6 sm:py-8 h-auto shadow-depth hover:shadow-xl transition-all"
+            style={{
+              fontSize: 'var(--font-size-2xl, 24px)',
+              borderRadius: 'var(--radius-boxes, 16px)',
+              fontWeight: 'var(--font-weight-semibold, 600)'
+            }}
           >
             <svg
               className="w-6 h-6 sm:w-8 sm:h-8"

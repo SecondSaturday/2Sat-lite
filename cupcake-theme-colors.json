@@ -1,0 +1,181 @@
+{
+  "theme": "cupcake",
+  "version": "5.1.25",
+  "colorScheme": "light",
+  "colors": {
+    "base": {
+      "base-100": {
+        "oklch": "oklch(97.788% 0.004 56.375)",
+        "hex": "#FAF7F5",
+        "rgb": "rgb(250, 247, 245)",
+        "usage": "Main background"
+      },
+      "base-200": {
+        "oklch": "oklch(93.982% 0.007 61.449)",
+        "hex": "#EFEAE6",
+        "rgb": "rgb(239, 234, 230)",
+        "usage": "Secondary background"
+      },
+      "base-300": {
+        "oklch": "oklch(91.586% 0.006 53.44)",
+        "hex": "#E7E2DF",
+        "rgb": "rgb(231, 226, 223)",
+        "usage": "Hover/pressed states"
+      },
+      "base-content": {
+        "oklch": "oklch(23.574% 0.066 313.189)",
+        "hex": "#291334",
+        "rgb": "rgb(41, 19, 52)",
+        "usage": "Text on base colors"
+      }
+    },
+    "primary": {
+      "primary": {
+        "oklch": "oklch(85% 0.138 181.071)",
+        "hex": "#44EBD3",
+        "rgb": "rgb(68, 235, 211)",
+        "usage": "Primary buttons, links"
+      },
+      "primary-content": {
+        "oklch": "oklch(43% 0.078 188.216)",
+        "hex": "#005D58",
+        "rgb": "rgb(0, 93, 88)",
+        "usage": "Text on primary"
+      }
+    },
+    "secondary": {
+      "secondary": {
+        "oklch": "oklch(89% 0.061 343.231)",
+        "hex": "#F9CBE5",
+        "rgb": "rgb(249, 203, 229)",
+        "usage": "Secondary buttons"
+      },
+      "secondary-content": {
+        "oklch": "oklch(45% 0.187 3.815)",
+        "hex": "#A0004A",
+        "rgb": "rgb(160, 0, 74)",
+        "usage": "Text on secondary"
+      }
+    },
+    "accent": {
+      "accent": {
+        "oklch": "oklch(90% 0.076 70.697)",
+        "hex": "#FFD6A7",
+        "rgb": "rgb(255, 214, 167)",
+        "usage": "Badges, highlights"
+      },
+      "accent-content": {
+        "oklch": "oklch(47% 0.157 37.304)",
+        "hex": "#9F2D00",
+        "rgb": "rgb(159, 45, 0)",
+        "usage": "Text on accent"
+      }
+    },
+    "neutral": {
+      "neutral": {
+        "oklch": "oklch(27% 0.006 286.033)",
+        "hex": "#262629",
+        "rgb": "rgb(38, 38, 41)",
+        "usage": "Borders, dividers"
+      },
+      "neutral-content": {
+        "oklch": "oklch(92% 0.004 286.32)",
+        "hex": "#E4E4E7",
+        "rgb": "rgb(228, 228, 231)",
+        "usage": "Text on neutral"
+      }
+    },
+    "semantic": {
+      "info": {
+        "oklch": "oklch(68% 0.169 237.323)",
+        "hex": "#00A4F2",
+        "rgb": "rgb(0, 164, 242)",
+        "usage": "Info alerts, tooltips"
+      },
+      "info-content": {
+        "oklch": "oklch(29% 0.066 243.157)",
+        "hex": "#042E49",
+        "rgb": "rgb(4, 46, 73)",
+        "usage": "Text on info"
+      },
+      "success": {
+        "oklch": "oklch(69% 0.17 162.48)",
+        "hex": "#00BA7B",
+        "rgb": "rgb(0, 186, 123)",
+        "usage": "Success messages"
+      },
+      "success-content": {
+        "oklch": "oklch(26% 0.051 172.552)",
+        "hex": "#002C21",
+        "rgb": "rgb(0, 44, 33)",
+        "usage": "Text on success"
+      },
+      "warning": {
+        "oklch": "oklch(79% 0.184 86.047)",
+        "hex": "#EEAF00",
+        "rgb": "rgb(238, 175, 0)",
+        "usage": "Warning alerts"
+      },
+      "warning-content": {
+        "oklch": "oklch(28% 0.066 53.813)",
+        "hex": "#411E03",
+        "rgb": "rgb(65, 30, 3)",
+        "usage": "Text on warning"
+      },
+      "error": {
+        "oklch": "oklch(64% 0.246 16.439)",
+        "hex": "#FE1C55",
+        "rgb": "rgb(254, 28, 85)",
+        "usage": "Error messages"
+      },
+      "error-content": {
+        "oklch": "oklch(27% 0.105 12.094)",
+        "hex": "#4D0218",
+        "rgb": "rgb(77, 2, 24)",
+        "usage": "Text on error"
+      }
+    }
+  },
+  "designTokens": {
+    "borderRadius": {
+      "selector": "1rem",
+      "field": "2rem",
+      "box": "1rem"
+    },
+    "borderWidth": "2px",
+    "componentSizing": {
+      "selector": "0.25rem",
+      "field": "0.25rem"
+    },
+    "visualEffects": {
+      "depth": 1,
+      "noise": 0
+    }
+  },
+  "typography": {
+    "fontFamily": "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif",
+    "sizes": {
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem"
+    },
+    "weights": {
+      "normal": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    }
+  },
+  "breakpoints": {
+    "sm": "640px",
+    "md": "768px",
+    "lg": "1024px",
+    "xl": "1280px",
+    "2xl": "1536px"
+  }
+}

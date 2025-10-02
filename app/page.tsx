@@ -9,8 +9,13 @@ import { SignedIn, SignedOut, SignInButton, UserButton, useClerk } from "@clerk/
 export default function Home() {
   return (
     <>
-      <header className="sticky top-0 z-10 bg-background p-4 border-b-2 border-slate-200 dark:border-slate-800 flex flex-row justify-between items-center">
-        Convex + Next.js + Clerk
+      <header
+        className="sticky top-0 z-10 bg-base-100 border-b border-base-300 flex flex-row justify-between items-center"
+        style={{ padding: 'var(--spacing-4)', minHeight: 'var(--navbar-min-height, 64px)' }}
+      >
+        <h1 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-semibold)' }}>
+          2Sat-lite
+        </h1>
         <div className="flex items-center gap-3">
           <SignedIn>
             <UserButton />
@@ -21,9 +26,12 @@ export default function Home() {
           </SignedOut>
         </div>
       </header>
-      <main className="p-8 flex flex-col gap-8">
-        <h1 className="text-4xl font-bold text-center">
-          Convex + Next.js + Clerk
+      <main style={{ padding: 'var(--spacing-8)' }} className="flex flex-col gap-8">
+        <h1
+          className="font-bold text-center text-base-content"
+          style={{ fontSize: 'var(--font-size-4xl)' }}
+        >
+          Second Saturday Newsletter
         </h1>
         <Content />
       </main>
@@ -37,7 +45,7 @@ function SignOutButton() {
   return (
     <>
       <button
-        className="bg-slate-200 dark:bg-slate-800 text-foreground rounded-md px-2 py-1"
+        className="btn btn-ghost btn-sm"
         onClick={() => signOut(() => router.push("/signin"))}
       >
         Sign out
@@ -56,21 +64,21 @@ function Content() {
   if (viewer === undefined || numbers === undefined) {
     return (
       <div className="mx-auto">
-        <p>loading... (consider a loading skeleton)</p>
+        <p className="loading loading-spinner loading-lg text-primary"></p>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-8 max-w-lg mx-auto">
-      <p>Welcome {viewer ?? "Anonymous"}!</p>
-      <p>
+      <p style={{ fontSize: 'var(--font-size-lg)' }}>Welcome {viewer ?? "Anonymous"}!</p>
+      <p className="text-base-content/80">
         Click the button below and open this page in another window - this data
         is persisted in the Convex cloud database!
       </p>
       <p>
         <button
-          className="bg-foreground text-background text-sm px-4 py-2 rounded-md"
+          className="btn btn-primary"
           onClick={() => {
             void addNumber({ value: Math.floor(Math.random() * 10) });
           }}
@@ -84,16 +92,16 @@ function Content() {
           ? "Click the button!"
           : (numbers?.join(", ") ?? "...")}
       </p>
-      <p>
+      <p className="text-base-content/80">
         Edit{" "}
-        <code className="text-sm font-bold font-mono bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded-md">
+        <code className="font-mono bg-base-200 px-2 py-1" style={{ borderRadius: 'var(--radius-fields)', fontSize: 'var(--font-size-sm)' }}>
           convex/myFunctions.ts
         </code>{" "}
         to change your backend
       </p>
-      <p>
+      <p className="text-base-content/80">
         Edit{" "}
-        <code className="text-sm font-bold font-mono bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded-md">
+        <code className="font-mono bg-base-200 px-2 py-1" style={{ borderRadius: 'var(--radius-fields)', fontSize: 'var(--font-size-sm)' }}>
           app/page.tsx
         </code>{" "}
         to change your frontend
@@ -106,7 +114,7 @@ function Content() {
         for an example of loading data in a server component
       </p>
       <div className="flex flex-col">
-        <p className="text-lg font-bold">Useful resources:</p>
+        <p style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-bold)' }}>Useful resources:</p>
         <div className="flex gap-2">
           <div className="flex flex-col gap-2 w-1/2">
             <ResourceCard
@@ -150,11 +158,18 @@ function ResourceCard({
   href: string;
 }) {
   return (
-    <div className="flex flex-col gap-2 bg-slate-200 dark:bg-slate-800 p-4 rounded-md h-28 overflow-auto">
-      <a href={href} className="text-sm underline hover:no-underline">
+    <div
+      className="flex flex-col gap-2 bg-base-200 p-4 h-28 overflow-auto hover:bg-base-300 transition-colors"
+      style={{ borderRadius: 'var(--radius-boxes)' }}
+    >
+      <a
+        href={href}
+        className="text-primary underline hover:no-underline font-semibold"
+        style={{ fontSize: 'var(--font-size-sm)' }}
+      >
         {title}
       </a>
-      <p className="text-xs">{description}</p>
+      <p className="text-base-content/70" style={{ fontSize: 'var(--font-size-xs)' }}>{description}</p>
     </div>
   );
 }
