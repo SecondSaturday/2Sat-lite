@@ -1,10 +1,10 @@
 name: Test
 
+# Testing is disabled until Playwright tests are written and secrets are configured
+# To enable: Add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY, and NEXT_PUBLIC_CONVEX_URL to GitHub secrets
+
 on:
-  pull_request:
-    branches: [main, develop]
-  push:
-    branches: [main, develop]
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   test:

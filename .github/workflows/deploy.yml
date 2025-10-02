@@ -1,9 +1,11 @@
 name: Deploy
 
+# Deployment is handled manually via Vercel CLI
+# This workflow is disabled to avoid failures due to missing secrets
+# To enable: Add CONVEX_DEPLOY_KEY, VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID to GitHub secrets
+
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   deploy:
@@ -23,28 +25,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Deploy Convex Backend
-        run: npx convex deploy --cmd 'npm run build'
+      - name: Build application
+        run: npm run build
         env:
-          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-
-      - name: Notify deployment success
-        if: success()
+      - name: Deployment info
         run: |
-          echo "✅ Deployment successful!"
-          echo "Frontend: https://2sat-lite.vercel.app"
-          echo "Convex Dashboard: https://dashboard.convex.dev"
-
-      - name: Notify deployment failure
-        if: failure()
-        run: |
-          echo "❌ Deployment failed!"
-          echo "Check logs for details"
+          echo "✅ Build successful!"
+          echo "To deploy:"
+          echo "1. Convex: npx convex deploy"
+          echo "2. Vercel: vercel --prod"
