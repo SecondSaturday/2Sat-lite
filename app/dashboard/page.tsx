@@ -18,7 +18,7 @@ export default function Dashboard() {
     .slice(0, 7);
 
   // For now, simulate empty groups until backend is ready
-  const mockGroups: any[] = [];
+  const mockGroups: Array<{ _id: Id<"groups">; name: string; memberIds: Id<"users">[] }> = [];
 
   // State for selected group (desktop only)
   const [selectedGroupId, setSelectedGroupId] = useState<Id<"groups"> | null>(
@@ -31,8 +31,6 @@ export default function Dashboard() {
 
   // Fetch newsletter for selected group
   const newsletter = undefined;
-
-  const isLoading = false; // No loading state, show empty state immediately
 
   // Handle group click - mobile navigates, desktop updates state
   const handleGroupClick = (groupId: Id<"groups">) => {
