@@ -1,0 +1,145 @@
+name: Parallel Agents
+
+on:
+  workflow_dispatch:
+    inputs:
+      features:
+        description: 'Comma-separated list of feature branches (e.g., feature/form,feature/newsletter)'
+        required: true
+        type: string
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Parse feature branches
+        id: set-matrix
+        run: |
+          # Convert comma-separated string to JSON array
+          FEATURES="${{ github.event.inputs.features }}"
+          MATRIX=$(echo "$FEATURES" | jq -R -s -c 'split(",") | map(select(length > 0))')
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+  build-and-test:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: ${{ fromJson(needs.setup.outputs.matrix) }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for worktrees
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Create worktree for ${{ matrix.feature }}
+        run: |
+          BRANCH_NAME="${{ matrix.feature }}"
+          WORKTREE_PATH="../2Sat-lite-${BRANCH_NAME##*/}"
+
+          # Create and checkout branch if it doesn't exist
+          git fetch origin
+          if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+            echo "Branch $BRANCH_NAME exists, checking out"
+          else
+            echo "Creating new branch $BRANCH_NAME from main"
+            git branch "$BRANCH_NAME" origin/main
+          fi
+
+          # Create worktree
+          git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"
+          echo "WORKTREE_PATH=$WORKTREE_PATH" >> $GITHUB_ENV
+
+      - name: Install dependencies in worktree
+        run: |
+          cd "$WORKTREE_PATH"
+          npm ci
+
+      - name: Install Playwright in worktree
+        run: |
+          cd "$WORKTREE_PATH"
+          npx playwright install --with-deps
+
+      - name: Run tests in worktree
+        run: |
+          cd "$WORKTREE_PATH"
+          npx playwright test
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.CONVEX_URL }}
+
+      - name: Upload test results for ${{ matrix.feature }}
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.feature }}
+          path: ${{ env.WORKTREE_PATH }}/test-results/
+          retention-days: 30
+
+      - name: Cleanup worktree
+        if: always()
+        run: |
+          git worktree remove "$WORKTREE_PATH" --force || true
+
+  report:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: all-results/
+
+      - name: Generate summary report
+        run: |
+          echo "# 🚀 Parallel Agent Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Features tested:** ${{ github.event.inputs.features }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          for dir in all-results/*/; do
+            feature=$(basename "$dir")
+            echo "## $feature" >> $GITHUB_STEP_SUMMARY
+            if [ -f "$dir/results.json" ]; then
+              # Parse test results (adjust based on actual format)
+              echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ No results found" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Create PR comment with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const features = '${{ github.event.inputs.features }}'.split(',');
+            let comment = `## 🤖 Parallel Agent Execution Results\n\n`;
+            comment += `Tested ${features.length} features in parallel:\n\n`;
+
+            features.forEach(feature => {
+              comment += `- **${feature}**: ✅ Completed\n`;
+            });
+
+            comment += `\n📊 Full test reports available in workflow artifacts.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

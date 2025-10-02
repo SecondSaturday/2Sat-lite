@@ -1,0 +1,89 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          # Clerk test keys (set in GitHub Secrets)
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          # Convex deployment URL (set in GitHub Secrets)
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.CONVEX_URL }}
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 30
+
+      - name: Comment PR with test results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const testResultsPath = 'test-results/results.json';
+
+            if (fs.existsSync(testResultsPath)) {
+              const results = JSON.parse(fs.readFileSync(testResultsPath, 'utf8'));
+              const { passed, failed, skipped } = results.stats;
+
+              const comment = `
+              ## 🧪 Test Results
+
+              - ✅ **Passed**: ${passed}
+              - ❌ **Failed**: ${failed}
+              - ⏭️ **Skipped**: ${skipped}
+
+              ${failed > 0 ? '⚠️ Some tests failed. Please review the Playwright report in the workflow artifacts.' : '✨ All tests passed!'}
+              `;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
