@@ -4,10 +4,11 @@ import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 
 export const metadata: Metadata = {
-  title: "2Sat-lite - Second Saturday Newsletter",
+  title: "2Sat - Second Saturday Newsletter",
   description: "Monthly friend group updates delivered every second Saturday",
   icons: {
-    icon: "/convex.svg",
+    icon: "/logo.svg",
+    apple: "/logo.svg",
   },
 };
 

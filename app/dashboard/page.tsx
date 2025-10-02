@@ -3,6 +3,7 @@
 import { UserButton } from "@clerk/nextjs";
 import { getNextSecondSaturday, formatMonthDay } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -15,30 +16,11 @@ export default function Dashboard() {
       <header className="bg-base-100 border-b border-base-300" style={{ minHeight: 'var(--navbar-min-height, 64px)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center">
           {/* Logo */}
-          <div className="flex items-center">
-            <svg
-              className="w-10 h-10 sm:w-12 sm:h-12"
-              viewBox="0 0 100 100"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M20 20 L20 50 L35 50 L35 35 L50 35 L50 20 Z"
-                fill="currentColor"
-              />
-              <path
-                d="M80 20 L80 50 L65 50 L65 35 L50 35 L50 20 Z"
-                fill="currentColor"
-              />
-              <path
-                d="M20 80 L20 50 L35 50 L35 65 L50 65 L50 80 Z"
-                fill="currentColor"
-              />
-              <path
-                d="M80 80 L80 50 L65 50 L65 65 L50 65 L50 80 Z"
-                fill="currentColor"
-              />
-            </svg>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/dashboard')}>
+            <Logo width={40} height={40} className="text-primary w-10 h-10 sm:w-12 sm:h-12" />
+            <span className="font-semibold text-base-content hidden sm:inline" style={{ fontSize: 'var(--font-size-lg)' }}>
+              2Sat
+            </span>
           </div>
 
           {/* Month Selector - Using design token font sizes */}

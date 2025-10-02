@@ -5,6 +5,7 @@ import { api } from "../convex/_generated/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SignedIn, SignedOut, SignInButton, UserButton, useClerk } from "@clerk/nextjs";
+import Logo from "@/components/Logo";
 
 export default function Home() {
   return (
@@ -13,9 +14,12 @@ export default function Home() {
         className="sticky top-0 z-10 bg-base-100 border-b border-base-300 flex flex-row justify-between items-center"
         style={{ padding: 'var(--spacing-4)', minHeight: 'var(--navbar-min-height, 64px)' }}
       >
-        <h1 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-semibold)' }}>
-          2Sat-lite
-        </h1>
+        <div className="flex items-center gap-2">
+          <Logo width={32} height={32} className="text-primary" />
+          <h1 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-semibold)' }}>
+            2Sat
+          </h1>
+        </div>
         <div className="flex items-center gap-3">
           <SignedIn>
             <UserButton />
